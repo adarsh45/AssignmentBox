@@ -16,7 +16,7 @@ public class LoginActivity extends AppCompatActivity {
 
 //        temporary code for directly starting homeactivity by default
 //        TODO: comment out this code on your end
-        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-        finish();
+//        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+//        finish();
     }
 }
