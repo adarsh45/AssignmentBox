@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/et_set_pdf_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter File Name"
+            />
+
+        <Button
+            android:id="@+id/btn_select_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Select PDF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="120sp"
+        >
+
+        <ProgressBar
+            android:id="@+id/pb_uploading"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbarSize="50dp"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/tv_upload_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No files Selected"
+            android:textAlignment="center"
+            android:textSize="17sp"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>
