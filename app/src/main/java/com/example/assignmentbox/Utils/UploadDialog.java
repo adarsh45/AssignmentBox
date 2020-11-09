@@ -27,6 +27,7 @@ import com.example.assignmentbox.R;
 import com.example.assignmentbox.pojo.UploadPOJO;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -45,7 +46,8 @@ public class UploadDialog extends DialogFragment {
     final static int USER_CHOOSE_PDF_CODE = 2342;
 
     TextView uploadStatusTV;
-    EditText pdfNameET;
+    TextInputLayout pdfNameET;
+    EditText pdfComments;
     Button selectUploadBtn;
     ProgressBar uploadProgressBar;
 
@@ -81,34 +83,44 @@ public class UploadDialog extends DialogFragment {
 
     private void initFirebase() {
         mStorageReference = FirebaseStorage.getInstance().getReference();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("uploads");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("uploads");//.child(SubjectName)
     }
 
     private void initViews(View view) {
         uploadStatusTV = view.findViewById(R.id.tv_upload_status);
         pdfNameET = view.findViewById(R.id.et_set_pdf_name);
+        pdfComments = view.findViewById(R.id.et_comments);
         uploadProgressBar = view.findViewById(R.id.pb_uploading);
         selectUploadBtn = view.findViewById(R.id.btn_select_upload);
     }
 
     public void getPDF() {
 
-        //Storage Access Permission from User ......
+        if (pdfNameET.getEditText().getText().toString().isEmpty() || pdfComments.getText().toString().isEmpty()){
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(context, "Please Give Storage Access Permission", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.getPackageName()));
-            startActivity(intent);
-            return;
+            pdfNameET.setError("Empty Field");
+            pdfComments.setError("Empty Field");
+
+        } else {
+
+            //Storage Access Permission from User ......
+
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Please Give Storage Access Permission", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.getPackageName()));
+                startActivity(intent);
+                return;
+            }
+
+
+            // Intent for choosing File..... only PDF can be selected
+
+            Intent fileChooserIntent = new Intent();
+            fileChooserIntent.setType("application/pdf");
+            fileChooserIntent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(fileChooserIntent, "Select PDF"), USER_CHOOSE_PDF_CODE);
+
         }
-
-
-        // Intent for choosing File..... only PDF can be selected
-
-        Intent fileChooserIntent = new Intent();
-        fileChooserIntent.setType("application/pdf");
-        fileChooserIntent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(fileChooserIntent, "Select PDF"), USER_CHOOSE_PDF_CODE);
 
     }
 
@@ -161,7 +173,7 @@ public class UploadDialog extends DialogFragment {
             4) */
 
         uploadProgressBar.setVisibility(View.VISIBLE);
-        StorageReference storageRef = mStorageReference.child(pdfNameET.getText().toString() + ".pdf");
+        StorageReference storageRef = mStorageReference.child(pdfNameET.getEditText().getText().toString() + ".pdf");
         storageRef.putFile(pdfData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -191,7 +203,7 @@ public class UploadDialog extends DialogFragment {
     //Getting Download Url for the File ...... for download
     private void getUploadFileUrl(){
 
-        mStorageReference.child(pdfNameET.getText().toString() + ".pdf").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        mStorageReference.child(pdfNameET.getEditText().getText().toString() + ".pdf").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Log.d("URL Capture", "URL captured Success");
@@ -210,7 +222,7 @@ public class UploadDialog extends DialogFragment {
     private void updateDBAfterFileUpload(String url){
 
         Log.d("Check URL : ", url);
-        UploadPOJO upload = new UploadPOJO(pdfNameET.getText().toString(), url);
+        UploadPOJO upload = new UploadPOJO(pdfNameET.getEditText().getText().toString(), url, pdfComments.getText().toString());
         mDatabaseReference.child(mDatabaseReference.push().getKey()).setValue(upload);
         Log.d("UpdateDBForFile", "UPDATE SUCCESS !!!!");
 
